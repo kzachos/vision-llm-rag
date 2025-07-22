@@ -9,3 +9,4 @@ streamlit==1.40.1 # Application UI
 # redis==4.5.5
 pyyaml
 pysqlite3-binary
+redis>=5.0.0
