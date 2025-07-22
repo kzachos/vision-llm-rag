@@ -22,14 +22,12 @@ from chromadb.utils.embedding_functions.ollama_embedding_function import (
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
-from langchain_redis import RedisConfig, RedisVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import CrossEncoder
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 # Import refactored modules
 from rag_core.vector_store import get_vector_collection, add_to_vector_collection
-from rag_core.cache import get_redis_store
 from rag_core.document import process_document
 from rag_core.rerank import re_rank_cross_encoders
 from rag_core.llm import call_llm
@@ -65,7 +63,7 @@ Important: Base your entire response solely on the information provided in the c
 
 
 def query_semantic_cache(query: str, n_results: int = 1, threshold: float = 80.0):
-    vector_store = get_redis_store()
+    vector_store = get_vector_collection()
     results = vector_store.similarity_search_with_score(query, k=n_results)
     if not results:
         return None
@@ -162,7 +160,7 @@ if __name__ == "__main__":
                         docs.append(
                             Document(page_content=row["question"], metadata={"answer": row["answer"]})
                         )
-                    vector_store = get_redis_store(workspace)
+                    vector_store = get_vector_collection(workspace)
                     vector_store.add_documents(docs)
                     st.success("Q&A cache added to VISION workspace!")
                 else:
@@ -216,7 +214,7 @@ if __name__ == "__main__":
 
     if ask and prompt:
         try:
-            vector_store = get_redis_store(workspace)
+            vector_store = get_vector_collection(workspace)
             results = vector_store.similarity_search_with_score(prompt, k=1)
             if results:
                 match_percentage = (1 - abs(results[0][1])) * 100
