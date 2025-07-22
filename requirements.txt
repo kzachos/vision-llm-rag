@@ -1,12 +1,12 @@
 chromadb==0.5.23 # Vector Database
 langchain-community==0.3.7 # Utils for text splitting
 langchain-ollama==0.2.2 # Ollama embedding provider
-langchain-redis==0.1.2 # Redis semantic cache provider
+# langchain-redis==0.1.2 # Redis semantic cache provider (disabled)
 ollama>=0.4.4 # Local inference
 PyMuPDF==1.24.14 # PDF Document loader
 sentence-transformers==3.3.1 # CrossEncoder Re-ranking
 streamlit==1.40.1 # Application UI
-# redis==4.5.5
 pyyaml
 pysqlite3-binary
-redis>=5.0.0
+# redis>=5.0.0
+# redisvl
