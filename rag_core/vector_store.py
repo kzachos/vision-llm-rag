@@ -1,16 +1,13 @@
 import chromadb
-from chromadb.utils.embedding_functions.ollama_embedding_function import OllamaEmbeddingFunction
+from langchain_openai import OpenAIEmbeddings
 
 def get_vector_collection(workspace: str):
-    ollama_ef = OllamaEmbeddingFunction(
-        url="http://localhost:11434/api/embeddings",
-        model_name="nomic-embed-text:latest",
-    )
+    embedding_function = OpenAIEmbeddings()
     chroma_client = chromadb.PersistentClient(path="./demo-rag-chroma")
     collection_name = f"rag_app_{workspace.replace(' ', '_').lower()}"
     return chroma_client.get_or_create_collection(
         name=collection_name,
-        embedding_function=ollama_ef,
+        embedding_function=embedding_function,
         metadata={"hnsw:space": "cosine"},
     )
 
