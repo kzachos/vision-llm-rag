@@ -4,6 +4,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+# Debug: Check if API key is loaded
+api_key = os.getenv("OPENAI_API_KEY")
+if api_key:
+    print(f"API key loaded: {api_key[:20]}...")
+else:
+    print("WARNING: OPENAI_API_KEY not found in environment")
+
 # Patch sys.modules before anything else
 try:
     import pysqlite3
@@ -23,7 +30,6 @@ from chromadb.utils.embedding_functions.openai_embedding_function import (
 )
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import CrossEncoder
 from streamlit.runtime.uploaded_file_manager import UploadedFile
@@ -233,7 +239,7 @@ if __name__ == "__main__":
             sys.exit(1)
         relevant_text, relevant_text_ids, relevant_metadata = re_rank_cross_encoders(prompt, context, results.get("metadatas", []))
         response = call_llm(context=relevant_text, prompt=prompt)
-        st.write_stream(response)
+        st.write(response)
         with st.expander("See retrieved documents"):
             st.write(results)
         with st.expander("See most relevant document ids"):
