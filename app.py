@@ -1,6 +1,14 @@
-import csv
-import os
 import sys
+import os
+
+# Patch sys.modules before anything else
+try:
+    import pysqlite3
+    sys.modules["sqlite3"] = pysqlite3
+except ImportError:
+    pass
+
+import csv
 import tempfile
 from io import StringIO
 import yaml
@@ -107,18 +115,28 @@ def get_document_info():
 if __name__ == "__main__":
     workspaces = load_workspaces()
     with st.sidebar:
-        st.set_page_config(page_title="RAG QnA Platform")
+        st.set_page_config(page_title="VISION: Violence, Health & Society QnA Platform")
+        st.markdown("""
+        # 🛡️ VISION: Violence, Health & Society
+        
+        **A UKPRP-funded research consortium platform for secure, multi-tenant QnA over violence and health data.**
+        
+        Select your workspace below. Each workspace is isolated for its partner group:
+        - Central Government
+        - Local Government
+        - Third Sector
+        """)
         workspace = st.selectbox(
-            "Select workspace",
+            "Select VISION workspace",
             workspaces,
-            help="Choose which workspace to upload/query files for."
+            help="Choose which VISION workspace to upload/query files for."
         )
-        st.header("\U0001F4D1 Upload Files")
+        st.header("\U0001F4D1 Upload Evidence or Cache")
         uploaded_files = st.file_uploader(
-            "**Upload PDF or CSV files for QnA**",
+            "**Upload PDF (evidence) or CSV (Q&A cache) files**",
             type=["pdf", "csv"],
             accept_multiple_files=True,
-            help="Upload your documents or QnA cache files.",
+            help="Upload primary evidence (PDF) or Q&A cache (CSV) for your workspace.",
         )
         upload_option = st.radio(
             "Upload type:",
@@ -131,7 +149,7 @@ if __name__ == "__main__":
                 st.error("CSV files are only allowed for 'Cache' upload type.")
                 sys.exit(1)
         process = st.button(
-            "\u26A1\uFE0F Ingest Evidence",
+            "\u26A1\uFE0F Ingest Evidence/Cache",
         )
         if uploaded_files and process:
             if upload_option == "Cache (Q&A pairs)":
@@ -146,7 +164,7 @@ if __name__ == "__main__":
                         )
                     vector_store = get_redis_store(workspace)
                     vector_store.add_documents(docs)
-                    st.success("Q&A cache added!")
+                    st.success("Q&A cache added to VISION workspace!")
                 else:
                     st.error("No CSV file found for cache upload.")
                     sys.exit(1)
@@ -162,7 +180,7 @@ if __name__ == "__main__":
                     all_splits = process_document(pdf_file)
                     add_to_vector_collection(all_splits, normalize_uploaded_file_name, workspace)
         st.divider()
-        st.header("\U0001F4CA Document Info")
+        st.header("\U0001F4CA Workspace Document Info")
         try:
             collection = get_vector_collection(workspace)
             all_results = collection.get()
@@ -177,18 +195,23 @@ if __name__ == "__main__":
         except Exception as e:
             st.error(f"Error getting document info: {str(e)}")
             doc_names = []
-        st.metric("Files", len(doc_names))
+        st.metric("Files in workspace", len(doc_names))
         if doc_names:
             st.subheader("\U0001F4C1 Uploaded Files:")
             for i, doc_name in enumerate(doc_names, 1):
                 st.write(f"{i}. {doc_name}")
         else:
-            st.info("No documents uploaded yet.")
+            st.info("No documents uploaded to this VISION workspace yet.")
 
-    st.header("\U0001F5E3\uFE0F QnA")
-    prompt = st.text_area("**Ask a question about your documents:**")
+    st.header("\U0001F5E3\uFE0F VISION QnA")
+    st.markdown("""
+    **Ask a question about your uploaded evidence or Q&A cache.**
+    
+    _This platform is for research and policy support within the VISION consortium. All answers are based solely on your uploaded documents._
+    """)
+    prompt = st.text_area("**Enter your question:**")
     ask = st.button(
-        "\U0001F525 Get Answer",
+        "\U0001F525 Get VISION Answer",
     )
 
     if ask and prompt:
@@ -206,7 +229,7 @@ if __name__ == "__main__":
         results = collection.query(query_texts=[prompt], n_results=10)
         context = results.get("documents")[0]
         if not context:
-            st.write("No relevant evidence found.")
+            st.write("No relevant evidence found in your VISION workspace.")
             sys.exit(1)
         relevant_text, relevant_text_ids, relevant_metadata = re_rank_cross_encoders(prompt, context, results.get("metadatas", []))
         response = call_llm(context=relevant_text, prompt=prompt)
