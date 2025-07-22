@@ -1,6 +1,9 @@
 import sys
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Patch sys.modules before anything else
 try:
     import pysqlite3
@@ -14,14 +17,13 @@ from io import StringIO
 import yaml
 
 import chromadb
-import ollama
 import streamlit as st
-from chromadb.utils.embedding_functions.ollama_embedding_function import (
-    OllamaEmbeddingFunction,
+from chromadb.utils.embedding_functions.openai_embedding_function import (
+    OpenAIEmbeddingFunction,
 )
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_core.documents import Document
-from langchain_ollama import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import CrossEncoder
 from streamlit.runtime.uploaded_file_manager import UploadedFile
