@@ -1,8 +1,16 @@
 import chromadb
-from langchain_openai import OpenAIEmbeddings
+import os
+from chromadb.utils.embedding_functions.openai_embedding_function import OpenAIEmbeddingFunction
 
 def get_vector_collection(workspace: str):
-    embedding_function = OpenAIEmbeddings()
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable not found")
+    
+    embedding_function = OpenAIEmbeddingFunction(
+        api_key=api_key,
+        model_name="text-embedding-ada-002"
+    )
     chroma_client = chromadb.PersistentClient(path="./demo-rag-chroma")
     collection_name = f"rag_app_{workspace.replace(' ', '_').lower()}"
     return chroma_client.get_or_create_collection(
