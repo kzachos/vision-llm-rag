@@ -1,4 +1,13 @@
-from langchain_openai import ChatOpenAI
+import os
+
+LLM_BACKEND = os.getenv("LLM_BACKEND", "openai").lower()
+
+if LLM_BACKEND == "openai":
+    from langchain_openai import ChatOpenAI
+elif LLM_BACKEND == "ollama":
+    from langchain_ollama import ChatOllama
+else:
+    raise ValueError(f"Unknown LLM_BACKEND: {LLM_BACKEND}. Use 'openai' or 'ollama'.")
 
 system_prompt = """You are an AI assistant tasked with providing detailed answers based solely on the given context. Your goal is to analyze the information provided and formulate a comprehensive, well-structured response to the question.
 
@@ -12,17 +21,27 @@ To answer the question:
 4. Ensure your answer is comprehensive, covering all relevant aspects found in the context.
 5. If the context doesn't contain sufficient information to fully answer the question, state this clearly in your response.
 
+IMPORTANT: Include specific quotes from the source documents to support your answers. Use quotation marks to indicate direct quotes from the documents. For example: "According to the document, 'partner agencies have the opportunity to utilize a wide range of intelligence' to identify victims."
+
 Format your response as follows:
 1. Use clear, concise language.
 2. Organize your answer into paragraphs for readability.
 3. Use bullet points or numbered lists where appropriate to break down complex information.
-4. If relevant, include any headings or subheadings to structure your response.
-5. Ensure proper grammar, punctuation, and spelling throughout your answer.
+4. Include relevant quotes from the source documents to support your points.
+5. If relevant, include any headings or subheadings to structure your response.
+6. Ensure proper grammar, punctuation, and spelling throughout your answer.
 
 Important: Base your entire response solely on the information provided in the context. Do not include any external knowledge or assumptions not present in the given text."""
 
 def call_llm(context, prompt):
-    llm = ChatOpenAI()
+    print(f"[LLM] Using backend: {LLM_BACKEND}")
+    if LLM_BACKEND == "openai":
+        llm = ChatOpenAI()
+    elif LLM_BACKEND == "ollama":
+        model = os.getenv("OLLAMA_LLM_MODEL", "llama3:8b")
+        llm = ChatOllama(model=model)
+    else:
+        raise ValueError(f"Unknown LLM_BACKEND: {LLM_BACKEND}. Use 'openai' or 'ollama'.")
     full_prompt = f"{system_prompt}\n\nContext: {context}\nQuestion: {prompt}"
     response = llm.invoke(full_prompt)
     return response.content 
