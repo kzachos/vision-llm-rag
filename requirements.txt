@@ -1,11 +1,11 @@
 chromadb==0.5.23 # Vector Database
 langchain-community
 langchain-openai
-# langchain-ollama==0.2.2 # Ollama embedding provider (disabled)
-# ollama>=0.4.4 # Local inference (disabled)
+langchain-ollama==0.2.2 # Ollama embedding provider
+ollama>=0.4.4 # Local inference
 PyMuPDF==1.24.14 # PDF Document loader
 sentence-transformers==3.3.1 # CrossEncoder Re-ranking
 streamlit==1.40.1 # Application UI
 pyyaml
-pysqlite3-binary
+# pysqlite3-binary
 python-dotenv

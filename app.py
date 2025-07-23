@@ -238,7 +238,25 @@ if __name__ == "__main__":
             st.write("No relevant evidence found in your VISION workspace.")
             sys.exit(1)
         relevant_text, relevant_text_ids, relevant_metadata = re_rank_cross_encoders(prompt, context, results.get("metadatas", []))
-        response = call_llm(context=relevant_text, prompt=prompt)
+        
+        # Enhance context with source information for better citations
+        enhanced_context = "Source Documents:\n"
+        metadatas = results.get("metadatas", [[]])[0]
+        for i, doc_id in enumerate(relevant_text_ids):
+            file_name = None
+            meta = None
+            if metadatas and doc_id < len(metadatas):
+                meta = metadatas[doc_id]
+            if isinstance(meta, list) and meta:
+                meta = meta[0]
+            if isinstance(meta, dict):
+                file_name = meta.get("file_name") or meta.get("source")
+            if not file_name:
+                file_name = f"Document_{i+1}"
+            if i < len(context):
+                enhanced_context += f"{file_name}: {context[doc_id]}\n\n"
+        
+        response = call_llm(context=enhanced_context, prompt=prompt)
         st.write(response)
         with st.expander("See retrieved documents"):
             st.write(results)
