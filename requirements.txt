@@ -1,3 +1,4 @@
+pysqlite3-binary
 chromadb==0.5.23 # Vector Database
 langchain-community
 langchain-openai
@@ -7,5 +8,4 @@ PyMuPDF==1.24.14 # PDF Document loader
 sentence-transformers==3.3.1 # CrossEncoder Re-ranking
 streamlit==1.40.1 # Application UI
 pyyaml
-# pysqlite3-binary
 python-dotenv
